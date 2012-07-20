@@ -1,0 +1,85 @@
+/* CSS Document */
+
+/*------------------physical machine list-----------------------------------*/
+
+
+/*
+#list_head , #router_list_head {
+	float: left;
+	width: 880px;
+	margin: 35px 0 0 4px;
+	min-height: 39px;
+	background: url(../images/title_bg1.jpg) no-repeat #fff;
+}
+
+#router_list_head li b {
+	float: left;
+	display: block;
+	//height: 32px;
+	margin: 0px 20px 0px 20px;
+}
+
+#list_head ul, #router_list_head  ul{
+	width:880px;
+	height:39px;
+	list-style: none;
+	float:left;
+}
+#list_head ul li, #router_list_head  ul li{
+	padding:0 0 0 2px;
+	float:left;
+	background:url(../images/nav_div.gif) right top no-repeat;
+	//margin: 0px 0px  8px  0px;
+}
+
+#list_head li b {
+	float: left;
+	display: block;
+	margin: 0px 18px 0px 18px;
+}
+
+.list , .router_list{
+	float: left;
+	width: 820px;
+	min-height: 45px;
+	background: url(../images/news.jpg) no-repeat #fff;
+	margin: 0px 0px 0px 25px;
+	padding: 15px;
+}
+
+
+.list ul, .router_list ul{
+	width:820px;
+	height:39px;
+	list-style: none;
+	float:left;
+}
+
+.router_list ul li{
+	font-family: "Trebuchet MS", Tahoma, Verdana;
+	padding:0 0 0 2px;
+	float:left;
+	margin: 0px 18px 0px 18px;
+}*/
+
+
+/*li more{
+	font-family: "ËÎÌו";
+	font-size:9px;
+}
+
+
+
+.list ul li{
+	font-family: "Trebuchet MS", Tahoma, Verdana;
+	padding:0 0 0 2px;
+	float:left;
+	margin: 0px 22px 0px 22px;
+}
+
+.list li b , .router_list li b{
+	float: left;
+	display: block;
+	//height: 32px;
+	
+}*/

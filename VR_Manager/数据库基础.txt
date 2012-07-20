@@ -1,0 +1,5 @@
+insert into testbedtopologyxml values("1", "<mxGraphModel><root><mxCell id=\"0\"/><mxCell id=\"1\" parent=\"0\"/></root></mxGraphModel>");
+
+insert into testbedid values("1", "1");
+
+insert into userinfo values("1", "admin", "admin", "15007134897", "admin@ict.ac.cn", "beijing", "beijing", "2");

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.testbed.database.DbRouterTableItem" table="ROUTERTABLE">
+  <id column="ID" name="id" type="int">
+   <generator class="increment"/>
+  </id>
+  <property column="VRID" generated="never" lazy="false" name="vrID" type="integer"/>
+  <property column="CODE" name="code" type="string"/>
+  <property column="DESIP" name="desIP" type="string"/>
+  <property column="INTERFACE" name="exPort" type="string"/>
+  <property column="NEXTHOP" name="nextHop" type="string"/>
+ </class>
+</hibernate-mapping>

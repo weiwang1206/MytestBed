@@ -1,0 +1,314 @@
+package com.util;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.testbed.Authorization;
+import com.testbed.AuthorizationFactory;
+import com.testbed.UnauthorizedException;
+import com.testbed.database.TestBedGlobals;
+
+public class PageUtils {
+
+	/** Name of the authorization token (stored in the user's session) */
+	private static final String TESTBED_AUTH_TOKEN = 
+		"testbed.authorization.token";
+	
+	/** Name of factory id (stored in the user's session) */
+	private static final String CURRENT_EXP_ID = 
+		"testbed.exp.id";
+	private static final String CURRENT_EXP_NAME = 
+		"testbed.exp.name";
+	
+	
+	/** 
+	 * Name of the cookie used to store user info for auto-login
+	 * purpose.
+	 */
+	private static final String TESTBED_AUTHOLOGIN_COOKIE =
+		"testbed.authorization.autologin";
+	
+	/** Name of the last visited token (stored in the user's session) */
+	private static final String TESTBED_LASTVISITED_TOKEN =
+		"testbed.user.lastvisited";
+	
+	private static final int COOKIE_AGE = (int)TestBedGlobals.DAY;
+	// "Tweakable" parameters for the cookie password encoding. NOTE: changing
+    // these and recompiling this class will essentially invalidate old cookies.
+    private final static int  ENCODE_XORMASK = 0x5A;
+    private final static char ENCODE_DELIMETER = '\002';
+    private final static char ENCODE_CHAR_OFFSET1 = 'A';
+    private final static char ENCODE_CHAR_OFFSET2 = 'h';
+    
+    
+	/**
+	 * 首先从request中取得session， 检查目前用户的session中是否存在'TESTBED_AUTHOLOGIN_COOKIE'，
+	 * 如果存在的话，直接返回Authorization的对象authToken。
+	 * 不存在的话，有可能是注册用户刚刚打开浏览器进入论坛（此时的注册用户以前曾经选择将用户信息保存在
+	 * cookie中），还没有初始化；也有可能是匿名用户登录，所以接下来程序分别对这两种情况进行处理。
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public static Authorization getUserAuthorization 
+			(HttpServletRequest request, HttpServletResponse response)
+	{
+		HttpSession session = request.getSession();
+		
+		/**
+		 *  Check 1: check for the TestBed authentication token in
+		 *  the user's session.
+		 */
+		Authorization authToken = 
+			(Authorization) session.getAttribute(TESTBED_AUTH_TOKEN);
+		
+		if (authToken != null) {
+			return authToken;
+		}
+		
+		// Check the cookie for userName and password.
+		Cookie cookie = getCookie(request, TESTBED_AUTHOLOGIN_COOKIE);
+		if (cookie != null) {
+			
+			System.out.println("in getUserAuthorization() -----> we get the cookie");
+			// 提取cookie中的信息并调用解码方法
+			try {
+				/**
+				 * At this point, we find a cookie so grab the userName
+				 * and password from it. Create an authorization token
+				 * and store that in the session.
+				 */
+				String[] values = decodePasswordCookie(cookie.getValue());
+				String userName = values[0];
+				String password = values[1];
+				
+				/**
+				 *  Try to validate the user based on the info from the cookie.
+				 *  Catch any exceptions.
+				 */
+				authToken = AuthorizationFactory.getAuthorization(userName, password);
+			} catch (Exception e) {}
+			
+			// Put that token in the user's session:
+			
+			if (authToken != null) {
+				session.setAttribute(TESTBED_AUTH_TOKEN, authToken);
+			}
+			
+			return authToken;
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Validates the user and optionally enables auto-login by creating an
+	 * auto-login cookie.
+	 * 
+	 * @param request 
+	 * @param response
+	 * @param userName
+	 * @param password
+	 * @param autoLogin if <code>true</code> create a cookie 
+	 * 												that enables auto-login.
+	 * @return authorization
+	 * @throws UnauthorizedException
+	 */
+	public static Authorization Login(
+			HttpServletRequest request, HttpServletResponse response, 
+			String userName, String password, boolean autoLogin)
+	 throws UnauthorizedException
+	{
+		Authorization authToken = AuthorizationFactory.getAuthorization(
+				userName, password);
+		HttpSession session = request.getSession();
+		session.setAttribute(TESTBED_AUTH_TOKEN, authToken);
+		
+		if (autoLogin) {
+			System.out.println("invokes saveCookie");
+			saveCookie(response, TESTBED_AUTHOLOGIN_COOKIE,
+					encodePasswordCookie(userName, password), COOKIE_AGE);
+		}
+		
+		return authToken;
+	}
+
+	
+	public static void logout(HttpServletRequest request,
+			HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		
+		session.removeAttribute(TESTBED_AUTH_TOKEN);
+		deleteCookie(request, response, TESTBED_AUTHOLOGIN_COOKIE);
+	}
+	
+	
+	
+	public static void deleteCookie(HttpServletRequest request,
+			HttpServletResponse response, String cookieName) {
+		// Invalidate the cookie
+		Cookie cookie = new Cookie(cookieName, "");
+		// Delete the cookie when the user closes their webBroweser
+		cookie.setMaxAge(0);
+		cookie.setPath("/");
+		response.addCookie(cookie);
+	}
+	
+	
+	/**
+	 * Stores a value in a cookie. This cookie will persist for the amount
+	 * specified in the <tt>saveTime</tt> parameter.
+	 * 
+	 * @param response
+	 * @param name a name to identify the cookie
+	 * @param value the value to store in the cookie
+	 * @param saveTime the time (in seconds) this cookie should live
+	 */
+	public static void saveCookie(HttpServletResponse response, String name,
+					String value, int saveTime) {
+		if (value == null) {
+			value = "";
+		}
+		
+		Cookie cookie = new Cookie(name, value);
+		cookie.setMaxAge(saveTime);
+		cookie.setPath("/");
+		response.addCookie(cookie);
+	}
+	
+	
+	
+	
+	/**
+	 * Returns the specified cookie, or <code>null</code> if the cookie
+	 * does not exist.
+	 * 
+	 * 
+	 * @param request the HttpServletRequest object, known as "request" in
+	 * 			a JSP page.
+	 * @param name the name of the cookie.
+	 * @return the cookie object if it exists, otherwise <code>null</code>.
+	 */
+	public static Cookie getCookie(HttpServletRequest request, String name) {
+		Cookie cookies[] = request.getCookies();
+		
+		// Returns null if there are no cookies or the name is invalid.
+		if (cookies == null || name == null || name.length() == 0) {
+			return null;
+		}
+		
+		// Otherwise, we do a linear scan for the cookie.
+		for (int i = 0; i < cookies.length; i++) {
+			if (cookies[i].getName().equals(name)) {
+				return cookies[i];
+			}
+		}
+		
+		return null;
+	}
+	
+	
+	public static void saveExpID(HttpServletRequest request, HttpServletResponse response,
+			int id) {
+		HttpSession session = request.getSession();
+		session.setAttribute(CURRENT_EXP_ID, id);
+	}
+	
+	/**
+	 * Returns current factory id.
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public static int getExpID(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		if (session.getAttribute(CURRENT_EXP_ID) == null)
+			return -1;
+		return (Integer) session.getAttribute(CURRENT_EXP_ID);
+	}
+	
+	public static void saveExpName(HttpServletRequest request, HttpServletResponse response,
+			String name) {
+		HttpSession session = request.getSession();
+		session.setAttribute(CURRENT_EXP_NAME, name);
+	}
+	
+	/**
+	 * Returns current factory id.
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public static String getExpName(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession();
+		return (String) session.getAttribute(CURRENT_EXP_NAME);
+	}
+
+    /**
+     * Builds a cookie string containing a username and password.<p>
+     *
+     * Note: with open source this is not really secure, but it prevents users
+     * from snooping the cookie file of others and by changing the XOR mask and
+     * character offsets, you can easily tweak results.
+     *
+     * @param username The username.
+     * @param password The password.
+     * @return String encoding the input parameters, an empty string if one of
+     *      the arguments equals <code>null</code>.
+     */
+    private static String encodePasswordCookie(String username, String password)
+    {
+        StringBuffer buf = new StringBuffer();
+        if (username != null && password != null) {
+            byte[] bytes = (username + ENCODE_DELIMETER + password).getBytes();
+            int b;
+
+            for (int n = 0; n < bytes.length; n++) {
+                b = bytes[n] ^ (ENCODE_XORMASK + n);
+                buf.append((char)(ENCODE_CHAR_OFFSET1 + (b & 0x0F)));
+                buf.append((char)(ENCODE_CHAR_OFFSET2 + ((b >> 4) & 0x0F)));
+            }
+        }
+        return buf.toString();
+    }
+
+	
+	/**
+     * Unrafels a cookie string containing a username and password.
+     * @param value The cookie value.
+     * @return String[] containing the username at index 0 and the password at
+     *      index 1, or <code>{ null, null }</code> if cookieVal equals
+     *      <code>null</code> or the empty string.
+     */
+    //decodePasswordCookie(String cokkieVal)的方法是反译密码
+    private static String[] decodePasswordCookie( String cookieVal ) {
+
+        // check that the cookie value isn't null or zero-length
+        if( cookieVal == null || cookieVal.length() <= 0 ) {
+            return null;
+        }
+
+        // unrafel the cookie value
+        char[] chars = cookieVal.toCharArray();
+        byte[] bytes = new byte[chars.length / 2];
+        int b;
+        for (int n = 0, m = 0; n < bytes.length; n++) {
+            b = chars[m++] - ENCODE_CHAR_OFFSET1;
+            b |= (chars[m++] - ENCODE_CHAR_OFFSET2) << 4;
+            bytes[n] = (byte)(b ^ (ENCODE_XORMASK + n));
+        }
+        cookieVal = new String(bytes);
+        int	pos = cookieVal.indexOf(ENCODE_DELIMETER);
+        String username = (pos < 0) ? "" : cookieVal.substring(0, pos);
+        String password = (pos < 0) ? "" : cookieVal.substring(pos + 1);
+
+        return new String[] {username, password};
+    }
+    
+    
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.testbed.database.DbExperiment" table="EXPERIMENT">
+  <id column="ID" name="id" type="int">
+   <generator class="increment"/>
+  </id>
+  <property column="USERID" name="userID" type="integer"/>
+  <property column="EXPNAME" generated="never" lazy="false"
+   name="expName" type="string"/>
+  <property column="DESCRIPTION" generated="never" lazy="false"
+   name="description" type="string"/>
+  <property column="VRNUMHIGH" generated="never" lazy="false"
+   name="vrNumHigh" type="int"/>
+  <property column="VRNUMLOW" generated="never" lazy="false"
+   name="vrNumLow" type="int"/>
+  <property column="TOPO" generated="never" lazy="false" name="topoXML" type="string"/>
+  <property column="EXPSTATE" name="expState" type="integer"/>
+  <property column="CONFIG" generated="never" lazy="false"
+   name="configXML" type="string"/>
+  <property column="EXPAPPLYTIME" generated="never" lazy="false"
+   name="expApplyTime" type="java.util.Date"/>
+  <property access="field" column="ISSTART" generated="never"
+   lazy="false" name="isStart" type="boolean"/>
+  <property column="EXPDEADLINE" generated="never" lazy="false"
+   name="expDeadLine" type="java.util.Date"/>
+  <property column="EXPSTARTTIME" generated="never" lazy="false"
+   name="expStartTime" type="java.util.Date"/>
+ </class>
+</hibernate-mapping>

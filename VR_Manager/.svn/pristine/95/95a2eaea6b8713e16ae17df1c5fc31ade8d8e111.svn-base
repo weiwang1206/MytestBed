@@ -1,0 +1,52 @@
+/* CSS Document */
+
+/*------------------physical machine list-----------------------------------*/
+
+
+
+.box_top , .box {
+	float:left;
+	width: 700px;
+	height:250px
+	padding: 15px 0 10px 0;
+	font-family: "Trebuchet MS", Tahoma, Verdana;
+	background: url(../images/title_bg2.png)  no-repeat #dbdbdb;
+}
+
+.box_top {
+	margin: 35px 0 0 30px;
+}
+
+.box {
+	margin: 0 0 0 30px;
+}
+.box h1 , .box_top h1{
+	text-align:center center;
+	font-size: 16px;
+	font-variant: small-caps;
+	color: #fff;
+	font-weight: bold;
+	margin: 0 0 15px 20px;
+}
+
+
+/*.box .left{
+	//float:left;
+	margin: 0 0 0 20px;
+	width:270px;
+}
+
+
+
+.box right{
+	width:480px;
+	margin: 0 13px 0 0;
+	//float:right;
+}*/
+
+.box  p, .box_top p{
+	font-size: 12px;
+	color: #5a5a5a;
+	text-align:center;
+	margin: 5px 20px;
+}

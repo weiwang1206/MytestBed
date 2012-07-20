@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.testbed.database.DbPhyMachine" table="PHYMACHINE">
+  <id column="ID" name="id" type="int"/>
+  <property column="IP" generated="never" lazy="false" name="ip" type="string"/>
+  <property column="CODE" generated="never" lazy="false" name="code" type="string"/>
+  <property column="DESCRIPTION" generated="never" lazy="false"
+   name="description" type="string"/>
+  <property column="HVRCOUNT" generated="never" lazy="false"
+   name="HVRCount" type="integer"/>
+  <property column="LVRCOUNT" generated="never" lazy="false"
+   name="LVRCount" type="integer"/>
+  <property column="CPU" generated="never" lazy="false" name="CPU" type="float"/>
+  <property column="MEMORY" name="memory" type="float"/>
+ </class>
+</hibernate-mapping>

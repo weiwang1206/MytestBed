@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.testbed.database.DbTestBedTopologyXML" table="TestBedTopologyXML">
+  <id column="ID" name="id" type="int">
+   <generator class="increment"/>
+  </id>
+  <property column="XML" generated="never" lazy="false" name="xml" type="string"/>
+ </class>
+</hibernate-mapping>

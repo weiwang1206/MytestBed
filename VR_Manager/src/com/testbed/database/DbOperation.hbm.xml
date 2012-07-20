@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.testbed.database.DbOperation" table="OPERATIONHISTORY">
+  <id column="ID" name="id" type="int">
+   <generator class="increment"/>
+  </id>
+  <property column="USERID" name="userID" type="integer"/>
+  <property column="DATE" name="date" type="date"/>
+  <property column="OPTRECORD" name="opeRecord" type="string"/>
+  <property column="EXPID" name="expID" type="integer"/>
+ </class>
+</hibernate-mapping>

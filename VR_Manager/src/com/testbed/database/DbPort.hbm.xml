@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+ <class name="com.testbed.database.DbPort" table="PORT">
+  <id column="ID" name="id" type="int">
+
+   <generator class="increment"/>
+  </id>
+  <property column="VRID" generated="never" lazy="false" name="vrID" type="integer"/>
+  <property column="CODE" generated="never" lazy="false" name="portCode" type="integer"/>
+  <property column="PORTIP" generated="never" lazy="false" name="ip" type="string"/>
+  <property column="PORTOSPF" generated="never" lazy="false"
+   name="ospf" type="string"/>
+  
+ </class>
+</hibernate-mapping>

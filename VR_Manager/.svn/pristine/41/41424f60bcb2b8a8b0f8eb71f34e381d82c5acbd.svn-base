@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+
+  <constant name="struts.devMode" value="true" />
+
+  <package name="basicstruts2" extends="json-default" namespace="/">
+
+  <action name="index">
+    <result>/index.jsp</result>
+  </action>
+
+  <action name="hello" class="org.apache.struts.helloworld.action.HelloWorldAction" method="execute">
+    <result name="success">/HelloWorld.jsp</result>
+  </action>
+  
+    <action name="UserExpsAction" class="org.apache.struts.helloworld.action.UserExpsAction" method="execute">
+  <result name="success">/create_experiment.jsp</result>
+  </action>
+  
+  
+  
+  <!-- 登录与注册 -->
+  <action name="JSONLogin" class="org.apache.struts.helloworld.action.JSONLogin" method="execute">
+    <result type="json"/>
+  </action>
+  
+  <action name="LoginAction" class="org.apache.struts.helloworld.action.LoginAction" method="execute">
+    <result name="success">/phyMachineTopology.jsp</result>
+    <result name="successForExperimenter" type="chain">
+    	<param name="actionName">UserExpsAction</param>
+    	<param name="namespace">/</param>
+    </result>
+    <result name="NoAuthority">/NoAuthority.jsp</result>
+    <result name="error">/err.jsp</result>
+  </action>
+  <action name="JSONCheckUserName" class="org.apache.struts.helloworld.action.JSONCheckUserName" method="execute">
+    <result type="json"/>
+  </action>
+  <action name="JSONRegister" class="org.apache.struts.helloworld.action.JSONRegister" method="execute">
+    <result type="json"/>
+  </action>
+  
+  <!-- 个人信息（分为两个角色，管理员、用户） -->
+	  <action name="BasicInfoAction" class="org.apache.struts.helloworld.action.BasicInfoAction" method="execute">
+	    <result name="success">/BasicInfo.jsp</result>
+	    <result name="successForExperimenter">/experimenterBasicInfo.jsp</result>
+	  </action>
+	  <action name="saveUserInfoActoin" class="org.apache.struts.helloworld.action.SaveUserInfoActoin" method="execute">
+	    <result name="success">/AdministraterInfo.jsp</result>
+	    <result name="successForExperimenter">/experimenterInfo.jsp</result>
+	  </action>
+	  <action name="ChangePsAction" class="org.apache.struts.helloworld.action.ChangePsAction" method="execute">
+	    <result name="success">/AdministraterInfo.jsp</result>
+	    <result name="successForExperimenter">/experimenterInfo.jsp</result>
+	  </action>
+	  <action name="OperationHistoryAction" class="org.apache.struts.helloworld.action.OperationHistoryAction" method="execute">
+	    <result name="success">/operationHistory.jsp</result>
+	    <result name="successForExperimenter">/experimenterOperationHistory.jsp</result>
+	  </action>
+	  <action name="ExperimentorExpsAction" class="org.apache.struts.helloworld.action.ExperimentorExpsAction" method="execute">
+    	<result name="success">/experimentorExps.jsp</result>
+  	  </action>
+
+  <!-- 管理员管理用户信息 -->
+  <action name="UserINfoManageAction" class="org.apache.struts.helloworld.action.UserINfoManageAction" method="execute">
+    <result name="success">/UserInfoManage.jsp</result>
+  </action>
+	  	<action name="UserInfoAction" class="org.apache.struts.helloworld.action.UserInfoAction" method="execute">
+	    	<result name="success">/UserInfo.jsp</result>
+	  	</action>
+
+  
+
+	<!-- 管理员管理资源 -->
+  <action name="RevertListAction" class="org.apache.struts.helloworld.action.RevertListAction" method="execute">
+    <result name="success">/RevertList.jsp</result>
+  </action>
+  <action name="ApplicationsListAction" class="org.apache.struts.helloworld.action.ApplicationsListAction" method="execute">
+    <result name="success">/ApplicationsList.jsp</result>
+  </action>
+	  	<action name="RouterSInfoAction" class="org.apache.struts.helloworld.action.RouterSInfoAction" method="execute">
+	    	<result name="success">/RouterSInfo.jsp</result>
+	  	</action>
+	  	
+	  	
+	<!-- 管理员管理实验 -->  	
+  <action name="ExperimentManageAction" class="org.apache.struts.helloworld.action.ExperimentManageAction" method="execute">
+    <result name="success">/ExperimentsManage.jsp</result>
+  </action>
+  
+  	<!-- 管理员管理物理机、路由器 -->  	
+  <action name="PhysicalMachineListAction" class="org.apache.struts.helloworld.action.PhysicalMachineListAction" method="execute">
+    <result name="success">/physical_machine_list.jsp</result>
+  </action>
+  		<action name="PhysicalMachineAction" class="org.apache.struts.helloworld.action.PhysicalMachineAction" method="execute">
+	  		<result name="success">/physical_machine.jsp</result>
+	  	</action>
+
+  <action name="VirtualRouterListAction" class="org.apache.struts.helloworld.action.VirtualRouterListAction" method="execute">
+    <result name="success">/router_list.jsp</result>
+  </action>
+  		<action name="VirtualRouterAction" class="org.apache.struts.helloworld.action.VirtualRouterAction" method="execute">
+	  		<result name="success">/router.jsp</result>
+	  	</action>
+	  	
+	  	
+  
+	  <!-- json -->  
+ <action name="JSONPhyMachineInfo" class="org.apache.struts.helloworld.action.JSONPhyMachineInfo" method="execute">
+    <result type="json"/>
+  </action>
+  <action name="JSONGetPmInfo" class="org.apache.struts.helloworld.action.JSONGetPmInfo" method="execute">
+    <result type="json"/>
+  </action>
+  
+  <action name="JSONPhyMachineListInfo" class="org.apache.struts.helloworld.action.JSONPhyMachineListInfo" method="execute">
+    <result type="json"/>
+  </action>
+  
+  <action name="JSONPhyMachineVrsInfo" class="org.apache.struts.helloworld.action.JSONPhyMachineVrsInfo" method="execute">
+    <result type="json"/>
+  </action>
+  
+  <action name="JSONPage" class="org.apache.struts.helloworld.action.JSONPage" method="execute">
+    <result type="json"/>
+  </action>
+  
+  <action name="JSONUserInfoManageOperation" class="org.apache.struts.helloworld.action.JSONUserInfoManageOperation" method="execute">
+    <result type="json"/>
+  </action>
+  
+   <action name="OfferExperimentAction" class="org.apache.struts.helloworld.action.OfferExperimentAction" method="execute">
+  <result name="success">/offerExperiment.jsp</result>
+  </action>
+	  <action name="JSONOfferExperiment" class="org.apache.struts.helloworld.action.JSONOfferExperiment" method="execute">
+	    <result type="json"/>
+	  </action>
+  
+  <action name="ApplyExperiment" class="org.apache.struts.helloworld.action.ApplyExperimentAction" method="execute">
+    <result type="json"/>
+  </action>
+  
+  <action name="phyMachineTopologyAction" class="org.apache.struts.helloworld.action.phyMachineTopologyAction" method="execute">
+    <result name="success">/phyMachineTopology.jsp</result>
+  </action>
+	  <action name="JSONAddPhyMachineAction" class="org.apache.struts.helloworld.action.JSONAddPhyMachineAction" method="execute">
+	    <result type="json"/>
+	  </action>
+	  <action name="JSONGetPmID" class="org.apache.struts.helloworld.action.JSONGetPmID" method="execute">
+	    <result type="json"/>
+	  </action>
+  
+  <action name="configRouter" class="org.apache.struts.helloworld.action.ConfigureRouterAction" method="execute">
+    <result type="json"/>
+  </action>
+  
+  <action name="UpdateVRRealData" class="org.apache.struts.helloworld.action.UpdateVRRealData" method="execute">
+  <result name="success">/HelloWorld.jsp</result>
+  </action>
+  
+  <action name="UpdatePMRealData" class="org.apache.struts.helloworld.action.UpdatePMRealData" method="execute">
+  <result name="success">/HelloWorld.jsp</result>
+  </action>
+  
+  <action name="VRDataForWebAction" class="org.apache.struts.helloworld.action.VRDataForWebAction" method="execute">
+  <result name="success">experiment_routertable.jsp</result>
+  </action>
+  
+  <action name="createExp" class="org.apache.struts.helloworld.action.CreateExperimentAction" method="execute">
+  <result name="success">/experiment_system.jsp</result>
+  </action>
+  
+  <action name="PortDataForWebAction" class="org.apache.struts.helloworld.action.PortDataForWebAction" method="execute">
+  <result name="success">experiment_port.jsp</result>
+  </action>
+  
+  <action name="JSONPortDataForWebAction" class="org.apache.struts.helloworld.action.JSONPortDataForWebAction" method="execute">
+    <result type="json"/>
+  </action>
+  
+    <action name="LoadXMLTestAction" class="org.apache.struts.helloworld.action.LoadXMLTestAction" method="execute">
+    <result type="json"/>
+  </action>
+  <action name="OpenExperimentAction" class="org.apache.struts.helloworld.action.OpenExperimentAction" method="execute">
+    <result type="json"/>
+  </action>
+  
+
+  
+</package> 
+
+
+</struts>

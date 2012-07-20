@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.testbed.database.DbUser" table="USERINFO">
+  <id column="ID" name="id" type="int">
+   <generator class="increment"/>
+  </id>
+  <property column="USERNAME" name="name" type="string"/>
+  <property column="PASSWORD" name="password" type="string"/>
+  <property column="TELEPHONE" name="telephone" type="string"/>
+  <property column="EMAIL" name="email" type="string"/>
+  <property column="PROVINCE" name="province" type="string"/>
+  <property column="CITY" name="city" type="string"/>
+  <property column="USERLEVEL" name="userLevel" type="integer"/>
+ </class>
+</hibernate-mapping>

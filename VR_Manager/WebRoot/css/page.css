@@ -1,0 +1,51 @@
+/* page */
+#page {
+	vertical-align:middle;
+	height: 41px;
+	width: 560px;
+	margin: 5px 0 0 0;
+	padding: 0;
+}
+
+#page ul {
+	clear: both;
+	float: right;
+	list-style: none;
+	display: inline;
+}
+
+#page li {
+	float: left;
+	max-width:100px;
+}
+
+#page li a {
+	float: left;
+	display: block;
+	color: #fff;
+	text-decoration: none;
+	font-family: Tahoma;
+	
+	margin: 0 10px 0 0; 
+	padding: 0 0 0 5px;
+	height: 41px;
+	line-height: 33px;
+	text-align: center;
+	cursor: pointer;
+}
+
+#page button {
+	
+}
+/*
+
+#menu li.current a, #menu li a:hover {
+	background: url(../images/menu_left.png) no-repeat;
+	color: #fff;
+}
+
+#menu li.current a, #menu li a:hover b {
+	background: url(../images/menu_right.png) right top no-repeat;
+}
+*/
+/*End OF page*/

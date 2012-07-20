@@ -1,0 +1,481 @@
+<%@ page language="java" import="java.util.*" contentType="text/html; charset=gb2312"  %>
+<%@ taglib prefix="s" uri="/struts-tags" %> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+	<meta charset="gb2312">	
+	
+	<title>试验床</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+	
+	<!-- Le styles -->
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style>
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+</head>
+<body>
+  <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">TestBed</a>
+		  <div class="btn-group pull-right">
+            <a data-toggle="modal" class="btn btn-danger btn-large" href="#myModal">创建账户</a>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div id="myModal" class="modal hide fade">
+	<div class="modal-header">
+	  <button type="button" class="close" data-dismiss="modal">×</button>
+	  <h3 align="center">注册账号</h3>
+	</div>
+	<div class="modal-body">
+	  <form class="form-horizontal">
+		<fieldset>
+		  <div class="control-group" id="rg_username_gp">
+			<label class="control-label" for="rg_username">用户名</label>
+			<div class="controls">
+			  <input id="rg_username" type="text" data-content="不超过7个汉字，或14个字节(数字，字母和下划线)。" 
+			  data-original-title="用户名规则" class="input-large" 
+			  onfocus="CleanState('rg_username_help', 'rg_username_gp')" onBlur="TestUserName()">
+			  <p id="rg_username_help" class="help-block" style="visibility:hidden;"></p>  
+			</div>
+		  </div>
+		  <div class="control-group" id="rg_pw1_gp">
+			<label class="control-label" for="rg_pw1">密码</label>
+			<div class="controls">
+			  <input id="rg_pw1" type="password" data-content="密码长度6～14位，字母区分大小写。" 
+			  data-original-title="密码规则" class="input-large" id="rg_pw1"
+			   onfocus="CleanState('rg_pw1_help', 'rg_pw1_gp')" onBlur="TestPw1()">
+			  <p id="rg_pw1_help" class="help-block" style="visibility:hidden;"></p>  
+			</div>
+		  </div>
+		  <div class="control-group"  id="rg_pw2_gp">
+			<label class="control-label" for="input01">再次输入密码</label>
+			<div class="controls">
+			  <input type="password" class="input-large" id="rg_pw2"
+			   onfocus="CleanState('rg_pw2_help', 'rg_pw2_gp')" onBlur="TestPw2()">
+			  <p id="rg_pw2_help" class="help-block" style="visibility:hidden;"></p>  
+			</div>
+		  </div>
+		  <div class="control-group" id="rg_email_gp">
+			<label class="control-label" onBlur="TestEmail" for="input01">邮箱</label>
+			<div class="controls">
+			  <!-- <div class="input-prepend">
+			    <span class="add-on">
+			      <i class="icon-envelope"></i>
+			    </span> -->
+			    <input type="text" data-content="激活码将会发到您的邮箱中，只有激活帐户才可以使用！" 
+			    data-original-title="常用邮箱" class="input-large" id="rg_email"
+			    onfocus="CleanState('rg_email_help', 'rg_email_gp')" onBlur="TestEmail()">
+			    <p id="rg_email_help" class="help-block" style="visibility:hidden;"></p> 
+			  <!-- </div>  -->
+			</div>
+		  </div>
+		</fieldset>
+	  </form>
+	</div>
+	<div class="modal-footer">
+	  <a href="#" class="btn" data-dismiss="modal">关闭</a>
+	  <a href="javascript:Register();" class="btn btn-primary">创建账户</a>
+	  <p id="register_help" class="help-block" style="visibility:hidden;"></p> 
+	</div>
+  </div>
+<div class="container" style="margin-top:60px;">
+  <div class="row">
+    <div class="span6 offset1">
+	  <div id="myCarousel" class="carousel slide">
+	    <div class="carousel-inner">
+		  <div  class="active item">
+		    <img src="images/ict.jpg" width="100%" height="60%" alt="">
+			<div class="carousel-caption">
+			  <h4>计算所</h4>
+			  <p></p>
+			</div>
+		  </div>
+		  <div  class="item">
+		    <img src="images/1.jpg" width="100%" height="60%" alt="">
+			<div class="carousel-caption">
+			  <h4>LORD RINGS</h4>
+			  <p></p>
+			</div>
+		  </div>
+		  <div  class="item ">
+		    <img src="images/2.jpg" width="100%" height="60%" alt="">
+			<div class="carousel-caption">
+			  <h4>CLIENT 9</h4>
+			  <p></p>
+			</div>
+		  </div>
+		  <div  class="item ">
+		    <img src="images/3.jpg" width="100%" height="60%" alt="">
+			<div class="carousel-caption">
+			  <h4>I, ROBOT</h4>
+			  <p></p>
+			</div>
+		  </div>
+		</div><!-- carousel-inner -->
+		<a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+		<a class="right carousel-control" href="#myCarousel" data-slide="prev">&rsaquo;</a>
+		
+	  </div><!-- carousel slide -->
+	</div><!-- span9 columns -->
+	<div class="span4 ">
+	  <form class="well" style=" padding-left:50px; margin-top:100px;">
+	    <h3>登录</h3>
+	    <br>
+	    <div class="control-group" id="username_gp">
+			<label class="control-label" for="username">用户名</label>
+			<div class="controls">
+			  <input  id="username" type="text" class="span3" placeholder="" 
+			   onfocus="CleanState('username_help', 'username_gp')">
+			  <p id="username_help" class="help-block" style="visibility:hidden;"></p>  
+			</div>
+		</div>
+		<div class="control-group" id="pw_gp">
+			<label class="control-label" for="pw">密码</label>
+			<div class="controls">
+			  <input id="pw" type="password" class="span3" placeholder=""
+			   onfocus="CleanState('pw_help', 'pw_gp')">
+			  <p id="pw_help" class="help-block" style="visibility:hidden;"></p>  
+			</div>
+		</div>
+  		<p id="login_help error" class="help-block" style="visibility:hidden;">hello</p> 
+	    <label class="checkbox " style="margin-top:10px;">
+	      <input id="autoLogin" type="checkbox" >
+	          保持登录状态
+	    </label>
+	    <a type="submit" onClick="Login()" class="btn btn-primary ">登录</a>
+	    
+	  </form>
+	</div>
+  </div><!-- "row" -->
+  <hr/>
+
+  <footer>
+	<p>&copy; Company 2012</p>
+  </footer>
+ </div><!-- "container" -->
+<!--
+    <div id="login">
+	
+	     <div id="top">
+		      <div id="top_left"><img src="images/login_03.gif" /></div>
+			  <div id="top_center"></div>
+		 </div>
+		 
+		 <div id="center">
+		      <div id="center_left"></div>
+			  <div id="center_middle">
+			  <form action="LoginAction">
+				<p id="user">用户名：<input type="text" name="userName" /></p>
+				<p id="password">密&nbsp;&nbsp;码：<input type="password" name="password" /></p>
+				<p id="auto">自动登录:<input type="checkbox" name="autoLogin" /></p>
+				<input id="loginBt" type="submit" value="登陆" />
+				<a id="btn" href="register.jsp">注册</a>
+			  </form>
+			 
+			  </div>
+			  <div id="center_right"></div>
+		 </div>
+		 <div id="down">
+		      <div id="down_left">
+			      <div id="inf">
+                       <span class="inf_text">TESTBED</span>
+					   <span class="copyright">可编程虚拟化路由器试验床</span>
+			      </div>
+			  </div>
+			  <div id="down_center"></div>		 
+		 </div>
+	</div>
+	-->
+	
+	<script src="assets/js/jquery.js"></script>
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+    
+    <script type="text/javascript">
+	  $('.carousel').carousel({
+	    interval:5000
+	  });
+	  $('fieldset input').popover({
+	    trigger:'focus'
+	  });
+	  
+	  var xmlhttp;
+	  
+  	//创建XMLHttpRequest对象
+	function createXmlHttp(){
+		// 判断游览器
+		if (window.XMLHttpRequest)
+		{// code for IE7+, Firefox, Chrome, Opera, Safari
+		  	xmlhttp=new XMLHttpRequest();
+		}
+		else
+		{// code for IE6, IE5
+		  	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}	
+	}
+	
+	
+	  
+	 //主调函数,以当前页作为参数
+	function ajax_checkUserName(userName) {
+	
+		createXmlHttp();
+		xmlhttp.open("post","JSONCheckUserName?userName=" + userName, false);
+		xmlhttp.onreadystatechange = callback_checkUserName;
+		xmlhttp.send(null);
+	}
+
+	//回调函数
+	function callback_checkUserName(){
+		if (xmlhttp.readyState == 4)
+		{
+			if (xmlhttp.status == 200)
+			{
+				var rs = xmlhttp.responseText;
+				alert(xmlhttp.responseText);
+				//使用eval方法将服务器上的json字符传转换成json对象
+				var obj = eval('('+rs+')');
+				
+				
+				var userID = obj["userID"];
+				
+				if (userID == -1)
+				{
+					var help = document.getElementById("rg_username_help");
+					help.innerHTML="此用户名可用。";
+					help.style.visibility="visible";
+					document.getElementById("rg_username_gp").className="control-group success";
+				} else 
+				{
+					var help = document.getElementById("rg_username_help");
+					help.innerHTML="此用户名已经被占用。";
+					help.style.visibility="visible";
+					document.getElementById("rg_username_gp").className="control-group error";
+				}
+			}
+		}
+	}
+	
+	  function TestUserName()
+	  {
+	  	var username = document.getElementById("rg_username").value;
+	  	var help = document.getElementById("rg_username_help");
+	  	
+	  	if (username == "")
+		{
+	  		help.innerHTML="此处不能留空。";
+			help.style.visibility="visible";
+		  	document.getElementById("rg_username_gp").className="control-group error";
+		}
+		else
+		{
+			ajax_checkUserName(username);
+		}
+	  }
+	  
+	  function TestPw1()
+	  {
+	  	var pw1 = document.getElementById("rg_pw1").value;
+	  	var help = document.getElementById("rg_pw1_help");
+	  	
+	  	if (pw1 == "")
+		{
+	  		help.innerHTML="此处不能留空。";
+			help.style.visibility="visible";
+		  	document.getElementById("rg_pw1_gp").className="control-group error";
+		}
+	  }
+	  
+	  function TestPw2()
+	  {
+	    var pw1 = document.getElementById("rg_pw1").value;
+	  	var pw2 = document.getElementById("rg_pw2").value;
+	  	var help = document.getElementById("rg_pw2_help");
+	  	
+	  	if (pw1 != pw2)
+	  	{
+	  		help.innerHTML="两个密码不匹配。是否重试？";
+			help.style.visibility="visible";
+	  		document.getElementById("rg_pw2_gp").className="control-group error";
+	  	}
+	  }
+	  
+	  function TestEmail()
+	  {
+	  	var email = document.getElementById("rg_email").value;
+	  	var help = document.getElementById("rg_email_help");
+	  	
+	  	if (email == "")
+		{
+	  		help.innerHTML="此处不能留空。";
+			help.style.visibility="visible";
+			document.getElementById("rg_email_gp").className="control-group error";
+		}
+	  	
+	  }
+	  
+	  function CleanState(help, group)
+	  {
+	    var help = document.getElementById(help);
+	    help.style.visibility="hidden";
+	    help.innerHTML="";
+	    document.getElementById(group).className="control-group";
+	  }
+	  
+	  
+	  //主调函数,以当前页作为参数
+	function ajax_Register(userName, pw, email) {
+	alert("ajax_Register");
+		var xx = "JSONRegister?userName=" + userName + "&password=" + pw + "&email=" + email;
+		alert(xx);
+		createXmlHttp();
+		xmlhttp.open("post","JSONRegister?userName=" + userName + "&password=" + pw + "&email=" + email, false);
+		xmlhttp.onreadystatechange = callback_Register;
+		xmlhttp.send(null);
+	}
+
+	//回调函数
+	function callback_Register(){
+		if (xmlhttp.readyState == 4)
+		{
+			if (xmlhttp.status == 200)
+			{
+				var rs = xmlhttp.responseText;
+				alert(xmlhttp.responseText);
+				//使用eval方法将服务器上的json字符传转换成json对象
+				var obj = eval('('+rs+')');
+				
+				
+				var result = obj["result"];
+				
+				if (result == true)
+				{
+					var help = document.getElementById("register_help");
+					help.innerHTML="注册成功，管理员审核通过后，方可登录。";
+					help.style.visibility="visible";
+				} else 
+				{
+					var help = document.getElementById("register_help");
+					help.innerHTML="注册失败。";
+					help.style.visibility="visible";
+				}
+			}
+		}
+	}
+	
+	  
+	  function Register()
+	  {
+	  	var username = document.getElementById("rg_username").value;
+		var pw1 = document.getElementById("rg_pw1").value;
+		var email = document.getElementById("rg_email").value;
+		alert(username);
+		alert(pw1);
+		alert(email);
+		ajax_Register(username, pw1, email);
+	  }
+	
+				
+	//主调函数,以当前页作为参数
+	function ajax_login(userName, pw, autoLogin) {
+	
+		createXmlHttp();
+		xmlhttp.open("post","JSONLogin?userName=" + userName + "&password=" + pw + "&autoLogin=" + autoLogin,false);
+		xmlhttp.onreadystatechange = callback_login;
+		xmlhttp.send(null);
+	}
+
+	//回调函数
+	function callback_login(){
+		if (xmlhttp.readyState == 4)
+		{
+			if (xmlhttp.status == 200)
+			{
+				var rs = xmlhttp.responseText;
+				//使用eval方法将服务器上的json字符传转换成json对象
+				var obj = eval('('+rs+')');
+				
+				
+				var userID = obj["userID"];
+				var IsVerified = obj["IsVerified"];
+				
+				if (userID == -1)
+				{
+					help = document.getElementById("pw_help");
+					help.innerHTML="您输入的用户名或密码不正确。";
+					help.style.visibility="visible";
+					document.getElementById("pw_gp").className="control-group error";
+				} else if (IsVerified == false)
+				{
+					help = document.getElementById("pw_help");
+					help.innerHTML="你的账户尚未被管理员审核，请等待。";
+					help.style.visibility="visible";
+					document.getElementById("pw_gp").className="control-group error";
+				} else
+				{
+					window.location.href="LoginAction?userID=" + userID; 
+				}
+			}
+		}
+	}
+	
+    function Login()
+    {
+	    var username = document.getElementById("username").value;
+	    var pw = document.getElementById("pw").value;
+		var autoLogin = document.getElementById("autoLogin").value;
+		
+		//处理用户名密码没写的情况
+		if (username == "")
+		{
+			help = document.getElementById("username_help");
+			help.innerHTML="此处不能留空。";
+			help.style.visibility="visible";
+	  		document.getElementById("username_gp").className="control-group error";
+			return;
+		}
+		
+		if (pw == "")
+		{
+			help = document.getElementById("pw_help");
+			help.innerHTML="此处不能留空。";
+			help.style.visibility="visible";
+	  		document.getElementById("pw_gp").className="control-group error";
+			return;
+		}
+		
+		//处理验证码
+		
+	 	ajax_login(username, pw, autoLogin);
+    }
+	</script>
+</body>
+</html>

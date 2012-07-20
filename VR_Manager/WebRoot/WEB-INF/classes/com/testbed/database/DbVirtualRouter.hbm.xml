@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+ <class name="com.testbed.database.DbVirtualRouter" table="VIRTUALROUTER">
+  <id column="ID" name="id" type="int">
+   <generator class="increment"/>
+  </id>
+  <property column="PHYID" generated="never" lazy="false" name="phyID" type="integer"/>
+  <property column="CODE" generated="never" lazy="false" name="vrCode" type="integer"/>
+  <property column="EXPID" generated="never" lazy="false" name="expID" type="integer"/>
+  <property column="ROUTEPROTOCOL" generated="never" lazy="false"
+   name="routeProtocol" type="string"/>
+  <property column="TYPE" generated="never" lazy="false" name="type" type="boolean"/>
+  <property column="RUNSTATE" generated="never" lazy="false"
+   name="runState" type="boolean"/>
+ </class>
+</hibernate-mapping>

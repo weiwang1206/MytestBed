@@ -1,0 +1,65 @@
+
+table {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 16px;
+	border-collapse: collapse;
+	text-align:center;
+	
+	vertical-align:middle;
+	margin:35px auto;
+	width:96%;
+}
+
+thead {
+	display: table-header-group;
+	vertical-align: middle;
+	border-color: inherit;
+}
+
+.list thead th{
+	line-height: 4em;
+}
+
+.inner thead th{
+	line-height: 2.5em;
+}
+
+tr {
+	display: table-row;
+	vertical-align: inherit;
+	border-color: inherit;
+}
+
+tbody tr:hover {
+	background-color:#e8edff;
+}
+
+th {
+	font-size: 18px;
+	font-weight: normal;
+	border-bottom: 2px solid #6678B1;
+	padding: 10px 8px;
+}
+
+tbody {
+	display: table-row-group;
+	vertical-align: middle;
+	border-color: inherit;
+}
+
+.list tbody td{
+	line-height: 3.5em;
+}
+
+.inner tbody td{
+	line-height: 1.5em;
+}
+
+td {
+	padding: 9px 8px 0;
+}
+
+td, th {
+	display: table-cell;
+	vertical-align: inherit;
+}

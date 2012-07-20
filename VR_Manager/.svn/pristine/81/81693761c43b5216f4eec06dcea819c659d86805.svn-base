@@ -1,0 +1,911 @@
+<%@ page language="java" import="java.util.*" contentType="text/html; charset=gb2312"  %>
+<%@ taglib prefix="s" uri="/struts-tags" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
+<head>
+
+	
+	<meta charset="gb2312">	
+	
+	<title>试验床</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+	
+	<!-- Le styles-->
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        background-color:transparent;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style> 
+    
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+	 
+	
+	<script type="text/javascript">
+		mxBasePath = 'topology/src';
+	</script>
+	<script type="text/javascript" src="topology/src/js/mxClient.js"></script>
+	<script type="text/javascript" src="scripts/my_js/num_format.js"></script>
+	
+
+  <script type="text/javascript">
+	var editor;
+	var editor1;
+	function main(container, outline, toolbar, sidebar, status)
+		{
+			// Checks if the browser is supported
+			if (!mxClient.isBrowserSupported())
+			{
+				// Displays an error message if the browser is not supported.
+				mxUtils.error('Browser is not supported!', 200, false);
+			}
+			else
+			{
+				// Assigns some global constants for general behaviour, eg. minimum
+				// size (in pixels) of the active region for triggering creation of
+				// new connections, the portion (100%) of the cell area to be used
+				// for triggering new connections, as well as some fading options for
+				// windows and the rubberband selection.
+				mxConstants.MIN_HOTSPOT_SIZE = 16;
+				mxConstants.DEFAULT_HOTSPOT = 1;
+				
+				// Enables guides
+				mxGraphHandler.prototype.guidesEnabled = true;
+
+			    // Alt disables guides
+			    mxGuide.prototype.isEnabledForEvent = function(evt)
+				{
+					return !mxEvent.isAltDown(evt);
+				};
+
+				// Enables snapping waypoints to terminals
+				mxEdgeHandler.prototype.snapToTerminals = true;
+
+				// Workaround for Internet Explorer ignoring certain CSS directives
+				if (mxClient.IS_IE)
+				{
+					new mxDivResizer(container);
+					new mxDivResizer(outline);
+					new mxDivResizer(toolbar);
+					new mxDivResizer(sidebar);
+					new mxDivResizer(status);
+				}
+				
+				// Creates a wrapper editor with a graph inside the given container.
+				// The editor is used to create certain functionality for the
+				// graph, such as the rubberband selection, but most parts
+				// of the UI are custom in this example.
+				editor = new mxEditor();
+				var graph = editor.graph;
+				var model = graph.getModel();
+
+				// Disable highlight of cells when dragging from toolbar
+				graph.setDropEnabled(false);
+
+				// Uses the port icon while connections are previewed
+				graph.connectionHandler.getConnectImage = function(state)
+				{	//##
+					//return new mxImage(state.style[mxConstants.STYLE_IMAGE], 16, 16);
+				};
+
+				// Centers the port icon on the target port
+				graph.connectionHandler.targetConnectImage = true;
+
+				// Does not allow dangling edges
+				graph.setAllowDanglingEdges(false);
+
+				// Sets the graph container and configures the editor
+				editor.setGraphContainer(container);
+				var config = mxUtils.load(
+					'topology/editors/config/keyhandler-commons.xml').
+						getDocumentElement();
+				editor.configure(config);
+				
+				// Defines the default group to be used for grouping. The
+				// default group is a field in the mxEditor instance that
+				// is supposed to be a cell which is cloned for new cells.
+				// The groupBorderSize is used to define the spacing between
+				// the children of a group and the group bounds.
+				/*var group = new mxCell('Physical Machine 0', new mxGeometry(), 'group');
+				group.setVertex(true);
+				group.setConnectable(false);
+				editor.defaultGroup = group;
+				editor.groupBorderSize = 20;*/
+				
+				// Disables drag-and-drop into non-swimlanes.
+				graph.isValidDropTarget = function(cell, cells, evt)
+				{
+					return this.isSwimlane(cell);
+				};
+				
+				// Disables drilling into non-swimlanes.
+				graph.isValidRoot = function(cell)
+				{
+					return this.isValidDropTarget(cell);
+				}
+
+				// Does not allow selection of locked cells
+				graph.isCellSelectable = function(cell)
+				{
+					return this.isCellLocked(cell);
+				};
+
+				// Returns a shorter label if the cell is collapsed and no
+				// label for expanded groups
+				graph.getLabel = function(cell)
+				{
+					var tmp = mxGraph.prototype.getLabel.apply(this, arguments); // "supercall"
+					
+					if (this.isCellLocked(cell))
+					{
+						// Returns an empty label but makes sure an HTML
+						// element is created for the label (for event
+						// processing wrt the parent label)
+						return '';
+					}
+					else if (this.isCellCollapsed(cell))
+					{
+						var index = tmp.indexOf('</h1>');
+						
+						if (index > 0)
+						{
+							tmp = tmp.substring(0, index+5);
+						}
+					} 
+					
+					return tmp;
+				}
+
+				// Disables HTML labels for swimlanes to avoid conflICT
+				// for the event processing on the child cells. HTML
+				// labels consume events before underlying cells get the
+				// chance to process those events.
+				//
+				// NOTE: Use of HTML labels is only recommended if the specific
+				// features of such labels are required, such as special label
+				// styles or interactive form fields. Otherwise non-HTML labels
+				// should be used by not overidding the following function.
+				// See also: configureStylesheet.
+				graph.isHtmlLabel = function(cell)
+				{
+					return !this.isSwimlane(cell);
+				}
+
+				// To disable the folding icon, use the following code:
+				/*graph.isCellFoldable = function(cell)
+				{
+					return false;
+				}*/
+
+				// Shows a "modal" window when double clicking a vertex.
+				graph.dblClick = function(evt, cell)
+				{
+					// Do not fire a DOUBLE_CLICK event here as mxEditor will
+					// consume the event and start the in-place editor.
+					
+
+					// Disables any default behaviour for the double click
+					mxEvent.consume(evt);
+				};
+				
+				var outln = new mxOutline(graph, outline);
+				// Enables new connections
+				//graph.setConnectable(true);
+
+				// Adds all required styles to the graph (see below)
+				configureStylesheet(graph);
+
+				}
+			
+		};
+		function configureStylesheet(graph)
+		{
+			var style = new Object();
+			style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
+			style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+			style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+			style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+			style[mxConstants.STYLE_GRADIENTCOLOR] = '#41B9F5';
+			style[mxConstants.STYLE_FILLCOLOR] = '#8CCDF5';
+			style[mxConstants.STYLE_STROKECOLOR] = '#1B78C8';
+			style[mxConstants.STYLE_FONTCOLOR] = '#000000';
+			style[mxConstants.STYLE_ROUNDED] = true;
+			style[mxConstants.STYLE_OPACITY] = '80';
+			style[mxConstants.STYLE_FONTSIZE] = '12';
+			style[mxConstants.STYLE_FONTSTYLE] = 0;
+			style[mxConstants.STYLE_IMAGE_WIDTH] = '48';
+			style[mxConstants.STYLE_IMAGE_HEIGHT] = '48';
+			graph.getStylesheet().putDefaultVertexStyle(style);
+
+			// NOTE: Alternative vertex style for non-HTML labels should be as
+			// follows. This repaces the above style for HTML labels.
+			/*var style = new Object();
+			style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_LABEL;
+			style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+			style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+			style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+			style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_CENTER;
+			style[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+			style[mxConstants.STYLE_SPACING_TOP] = '56';
+			style[mxConstants.STYLE_GRADIENTCOLOR] = '#7d85df';
+			style[mxConstants.STYLE_STROKECOLOR] = '#5d65df';
+			style[mxConstants.STYLE_FILLCOLOR] = '#adc5ff';
+			style[mxConstants.STYLE_FONTCOLOR] = '#1d258f';
+			style[mxConstants.STYLE_FONTFAMILY] = 'Verdana';
+			style[mxConstants.STYLE_FONTSIZE] = '12';
+			style[mxConstants.STYLE_FONTSTYLE] = '1';
+			style[mxConstants.STYLE_ROUNDED] = '1';
+			style[mxConstants.STYLE_IMAGE_WIDTH] = '48';
+			style[mxConstants.STYLE_IMAGE_HEIGHT] = '48';
+			style[mxConstants.STYLE_OPACITY] = '80';
+			graph.getStylesheet().putDefaultVertexStyle(style);*/
+
+			style = new Object();
+			style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_SWIMLANE;
+			style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+			style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+			style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
+			style[mxConstants.STYLE_FILLCOLOR] = '#FF9103';
+			style[mxConstants.STYLE_GRADIENTCOLOR] = '#F8C48B';
+			style[mxConstants.STYLE_STROKECOLOR] = '#E86A00';
+			style[mxConstants.STYLE_FONTCOLOR] = '#000000';
+			style[mxConstants.STYLE_ROUNDED] = true;
+			style[mxConstants.STYLE_OPACITY] = '80';
+			style[mxConstants.STYLE_STARTSIZE] = '30';
+			style[mxConstants.STYLE_FONTSIZE] = '16';
+			style[mxConstants.STYLE_FONTSTYLE] = 1;
+			graph.getStylesheet().putCellStyle('group', style);
+			
+			style = new Object();
+			style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
+			style[mxConstants.STYLE_FONTCOLOR] = '#774400';
+			style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+			style[mxConstants.STYLE_PERIMETER_SPACING] = '6';
+			style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
+			style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+			style[mxConstants.STYLE_FONTSIZE] = '10';
+			style[mxConstants.STYLE_FONTSTYLE] = 2;
+			style[mxConstants.STYLE_IMAGE_WIDTH] = '16';
+			style[mxConstants.STYLE_IMAGE_HEIGHT] = '16';
+			//graph.getStylesheet().putCellStyle('port', style);
+			
+			style = graph.getStylesheet().getDefaultEdgeStyle();
+			style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = '#FFFFFF';
+			style[mxConstants.STYLE_STROKEWIDTH] = '2';
+			style[mxConstants.STYLE_ROUNDED] = true;
+			style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
+		};
+		
+		
+		function loadXML()
+		{
+	
+		createXmlHttp();
+		////alert("xmlHTTP");
+		xmlhttp.open("post","OpenExperimentAction.action?method=offer&expId="+<s:property value="id"/>,false);
+		xmlhttp.onreadystatechange = showXML;
+		xmlhttp.send(null);
+		
+		}
+	function showXML(){
+	if (xmlhttp.readyState == 4)
+	{
+		if (xmlhttp.status == 200)
+		{
+		
+		var rs = xmlhttp.responseText;
+		//使用eval方法将服务器上的json字符传转换成json对象
+		jsonContent = eval('('+rs+')');
+		var XML = jsonContent["XML"];
+		////alert(XML);
+		editor.graph.getModel().beginUpdate();
+		var doc = mxUtils.parseXml(XML);
+		var root = doc.documentElement;
+		var dec = new mxCodec(doc);   
+		dec.decode(root, editor.graph.getModel()); 
+		editor.graph.getModel().endUpdate();
+		
+		//editor.graph.zoomTo(0.5,0);
+		/*editor.graph.fit();
+		editor.graph.view.rendering = true;
+		editor.graph.refresh();*/
+		}
+	}
+		
+	}
+	
+	
+	//物理机拓扑图 
+	
+	
+	function main1(container, outline, toolbar, sidebar, status)
+		{
+			// Checks if the browser is supported
+			if (!mxClient.isBrowserSupported())
+			{
+				// Displays an error message if the browser is not supported.
+				mxUtils.error('Browser is not supported!', 200, false);
+			}
+			else
+			{
+				// Assigns some global constants for general behaviour, eg. minimum
+				// size (in pixels) of the active region for triggering creation of
+				// new connections, the portion (100%) of the cell area to be used
+				// for triggering new connections, as well as some fading options for
+				// windows and the rubberband selection.
+				mxConstants.MIN_HOTSPOT_SIZE = 16;
+				mxConstants.DEFAULT_HOTSPOT = 1;
+				
+				// Enables guides
+				mxGraphHandler.prototype.guidesEnabled = true;
+
+			    // Alt disables guides
+			    mxGuide.prototype.isEnabledForEvent = function(evt)
+				{
+					return !mxEvent.isAltDown(evt);
+				};
+
+				// Enables snapping waypoints to terminals
+				mxEdgeHandler.prototype.snapToTerminals = true;
+
+				// Workaround for Internet Explorer ignoring certain CSS directives
+				if (mxClient.IS_IE)
+				{
+					new mxDivResizer(container);
+					new mxDivResizer(outline);
+					new mxDivResizer(toolbar);
+					new mxDivResizer(sidebar);
+					new mxDivResizer(status);
+				}
+				
+				// Creates a wrapper editor with a graph inside the given container.
+				// The editor is used to create certain functionality for the
+				// graph, such as the rubberband selection, but most parts
+				// of the UI are custom in this example.
+				editor1 = new mxEditor();
+				var graph = editor1.graph;
+				var model = graph.getModel();
+
+				// Disable highlight of cells when dragging from toolbar
+				graph.setDropEnabled(false);
+
+				// Uses the port icon while connections are previewed
+				graph.connectionHandler.getConnectImage = function(state)
+				{	//##
+					//return new mxImage(state.style[mxConstants.STYLE_IMAGE], 16, 16);
+				};
+
+				// Centers the port icon on the target port
+				graph.connectionHandler.targetConnectImage = true;
+
+				// Does not allow dangling edges
+				graph.setAllowDanglingEdges(false);
+
+				// Sets the graph container and configures the editor
+				editor1.setGraphContainer(container);
+				var config = mxUtils.load(
+					'topology/editors/config/keyhandler-commons.xml').
+						getDocumentElement();
+				editor1.configure(config);
+				
+				// Defines the default group to be used for grouping. The
+				// default group is a field in the mxEditor instance that
+				// is supposed to be a cell which is cloned for new cells.
+				// The groupBorderSize is used to define the spacing between
+				// the children of a group and the group bounds.
+				/*var group = new mxCell('Physical Machine 0', new mxGeometry(), 'group');
+				group.setVertex(true);
+				group.setConnectable(false);
+				editor.defaultGroup = group;
+				editor.groupBorderSize = 20;*/
+				
+				// Disables drag-and-drop into non-swimlanes.
+				graph.isValidDropTarget = function(cell, cells, evt)
+				{
+					return this.isSwimlane(cell);
+				};
+				
+				// Disables drilling into non-swimlanes.
+				graph.isValidRoot = function(cell)
+				{
+					return this.isValidDropTarget(cell);
+				}
+
+				// Does not allow selection of locked cells
+				graph.isCellSelectable = function(cell)
+				{
+					return this.isCellLocked(cell);
+				};
+
+				// Returns a shorter label if the cell is collapsed and no
+				// label for expanded groups
+				graph.getLabel = function(cell)
+				{
+					var tmp = mxGraph.prototype.getLabel.apply(this, arguments); // "supercall"
+					
+					if (this.isCellLocked(cell))
+					{
+						// Returns an empty label but makes sure an HTML
+						// element is created for the label (for event
+						// processing wrt the parent label)
+						return '';
+					}
+					else if (this.isCellCollapsed(cell))
+					{
+						var index = tmp.indexOf('</h1>');
+						
+						if (index > 0)
+						{
+							tmp = tmp.substring(0, index+5);
+						}
+					} 
+					
+					return tmp;
+				}
+
+				// Disables HTML labels for swimlanes to avoid conflICT
+				// for the event processing on the child cells. HTML
+				// labels consume events before underlying cells get the
+				// chance to process those events.
+				//
+				// NOTE: Use of HTML labels is only recommended if the specific
+				// features of such labels are required, such as special label
+				// styles or interactive form fields. Otherwise non-HTML labels
+				// should be used by not overidding the following function.
+				// See also: configureStylesheet.
+				graph.isHtmlLabel = function(cell)
+				{
+					return !this.isSwimlane(cell);
+				}
+
+				// To disable the folding icon, use the following code:
+				/*graph.isCellFoldable = function(cell)
+				{
+					return false;
+				}*/
+
+				// Shows a "modal" window when double clicking a vertex.
+				graph.dblClick = function(evt, cell)
+				{
+					// Do not fire a DOUBLE_CLICK event here as mxEditor will
+					// consume the event and start the in-place editor.
+					
+
+					// Disables any default behaviour for the double click
+					mxEvent.consume(evt);
+				};
+				
+				var outln = new mxOutline(graph, outline);
+				// Enables new connections
+				//graph.setConnectable(true);
+
+				// Adds all required styles to the graph (see below)
+				configureStylesheet(graph);
+
+				}
+			
+		};
+	
+	function loadXML1()
+	{
+	
+		createXmlHttp();
+		//alert("xmlHTTP");
+		xmlhttp.open("post","LoadXMLTestAction?method=loadTopologyXML",false);
+		xmlhttp.onreadystatechange = showXML1;
+		xmlhttp.send(null);
+		
+	}
+	function showXML1(){
+		if (xmlhttp.readyState == 4)
+		{
+			if (xmlhttp.status == 200)
+			{
+				////alert("show xml");
+				var rs = xmlhttp.responseText;
+				//使用eval方法将服务器上的json字符传转换成json对象
+				jsonContent = eval('('+rs+')');
+				var XML = jsonContent["XML"];
+				//alert(XML);
+				editor1.graph.getModel().beginUpdate();
+				var doc = mxUtils.parseXml(XML);
+				var root = doc.documentElement;
+				var dec = new mxCodec(doc);
+				dec.decode(root, editor1.graph.getModel()); 
+				editor1.graph.getModel().endUpdate();
+			}
+		}
+	}
+	
+
+	function start()
+		{
+		main(document.getElementById('graphContainer'),
+					document.getElementById('outlineContainer'),
+				 	document.getElementById('toolbarContainer'),
+					document.getElementById('sidebarContainer'),
+					document.getElementById('statusContainer'));
+		loadXML();
+		main1(document.getElementById('graphContainer1'),
+					document.getElementById('outlineContainer1'),
+				 	document.getElementById('toolbarContainer'),
+					document.getElementById('sidebarContainer'),
+					document.getElementById('statusContainer'));
+		
+		loadXML1();
+		table_autoIncrease();
+		}
+
+	function table_autoIncrease()
+	{
+		var oTable = document.getElementById("VRTable");
+		for(var i=0;i<oTable.rows.length;i++){
+			oTable.rows[i].cells[0].innerHTML = (i+1);
+			}
+	}
+
+	
+	
+	
+	
+	var objList=new Array();//数组
+	
+	var highVrCnt = <s:property value="exp.vrNumHigh" />
+	
+	var SelectedPmList=new Array();
+	function commit_offer()
+	{
+		var idTags = document.getElementsByName("VRTable");
+		var selection = document.getElementsByName("pmCodeList");
+		var vids = document.getElementsByName("Vid");
+		var types = document.getElementsByName("Type");
+		
+		
+		for (var i = 0; i < idTags.length; i++) {
+			
+			var opt = selection[i].options[selection[i].selectedIndex].text.substring(4);
+			var code = vids[i].innerHTML.substring(5);
+			var type = 1;
+			alert(opt);
+			alert(code);
+			
+			
+			
+			var vr= new virtualRouter(code, opt, type);//对象
+			var i;
+			for (i = 0; i < SelectedPmList.length; i++) {
+				if (SelectedPmList[i].code == code) {
+				SelectedPmList[i].pmID = pmID;
+				break;
+					}
+			}
+		
+			if (i == SelectedPmList.length) {
+				SelectedPmList.push(vr);
+			}
+			
+			
+			//alert(register);
+			//alert(deleteUser);
+			
+		}
+		
+		var pmListAsJSON = JSON.stringify(SelectedPmList); 
+		alert(pmListAsJSON);
+		//ajax(pmListAsJSON);
+	}
+	
+	function setCode() {
+		////alert("setCode");
+		var Obj = document.getElementById("vrCodeList"); 
+		code = Obj.options[Obj.selectedIndex].value.split(" ")[0];
+		if (Obj.selectedIndex <= highVrCnt) {
+			type = true;	
+		} else {
+			type = false;
+		}
+	}
+
+	function setPmID() {
+		////alert("setPmID");
+		var Obj = document.getElementById("pmCodeList");
+		pmID = Obj.options[Obj.selectedIndex].value;
+	}
+	
+	var xmlhttp;
+  	//创建XMLHttpRequest对象
+	function createXmlHttp(){
+		// 判断游览器
+		if (window.XMLHttpRequest)
+		{// code for IE7+, Firefox, Chrome, Opera, Safari
+		  	xmlhttp=new XMLHttpRequest();
+		}
+		else
+		{// code for IE6, IE5
+		  	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}	
+	}
+				
+	//创建Person类有参构造器  
+	function virtualRouter(code, pmID, type){  
+		this.code = code;
+	    this.pmID = pmID;  
+	    this.type = type;
+	} 
+	
+	function addVr() {
+		////alert("addVr");
+		setPmID();
+		var vr= new virtualRouter(code, pmID, type);//对象
+		var i;
+		for (i = 0; i < objList.length; i++) {
+			if (objList[i].code == code) {
+				objList[i].pmID = pmID;
+				break;
+			}
+		}
+		
+		if (i == objList.length) {
+			objList.push(vr);	
+		}
+		
+		////alert(vr.code);
+		////alert(vr.pmID);
+	}
+				
+	//主调函数,以当前页作为参数
+	function ajax(jsonData) {
+		//alert(jsonData);
+		createXmlHttp();
+		xmlhttp.open("post","JSONOfferExperiment?expID=" + <s:property value="id"/> + "&json=" + jsonData, true);
+		xmlhttp.onreadystatechange = callback;
+		xmlhttp.setRequestHeader("Content-Type" ,"application/x-www-form-urlencoded");
+		xmlhttp.send(null);
+		
+	}
+
+	//回调函数
+	function callback(){
+		/*var rs = xmlhttp.responseText;
+		//使用eval方法将服务器上的json字符传转换成json对象
+		var obj = eval('('+rs+')');
+
+		if (segment == 0) {
+			data_cpu = obj.CPUUseage;
+			data_mem = obj.MemUseage;
+		} else if (segment == 2) {
+			var states = document.getElementsByName("state");
+			var i;
+			var parname;
+			for (i = 0; i < states.length; i++)
+			{
+				parname = "vm_state"+ i;
+				states[i].innerHTML = obj[parname];
+			}
+		} else {
+			//alert("berzinga!");
+		}*/
+	}
+	
+	// 提交给后台Action一份路由器分配方案的list。
+	function allocate() {
+		//使用json.js库里的stringify()方法将objList对象转换成Json字符串   
+   		var personAsJSON = JSON.stringify(objList);  
+   		
+		ajax(personAsJSON);
+	}
+	</script>
+</head>
+<body id="body"; onload="start()"; style=" padding-top: 60px;padding-bottom: 40px;">
+<!--<div id="my_container">
+	<div id="header">
+		<div id="logo">
+      		<h1>TestBed</h1>
+      		<h2>ICT</h2>
+    	</div>
+		<div id="menu">
+			<ul>
+				<li><a href=""><b>试验床管理系统</b></a></li>
+		
+				<li style=" font-size:10px"><a href="AdministraterInfo.jsp"><b>设置</b></a></li>
+			</ul>
+		</div>
+		<div class="cleaner"></div>
+	</div>
+	<div id="left">
+		<div class="leftset">
+	
+	<div class="left-content">
+		<ul>
+			<li class="item"><b class="item1"></b><a style="text-decoration:none;" href="#">资源查看</a></li>
+			<li class="sepra">
+				<ul>
+					<li class="sepra-list first current"><a style="text-decoration:none;" href="PhysicalMachineListAction?pageIndex=0">物理机器</a></li>
+					<li class="sepra-list"><a style="text-decoration:none;" href="VirtualRouterListAction?pageIndex=0">虚拟路由器</a></li>
+				</ul>
+			</li>
+		</ul>
+		
+		
+		<ul>
+			<li class="item"><b class="item2"></b><a style="text-decoration:none;" href="#">资源管理</a></li>
+			<li class="sepra" style="display:block;">
+				<ul>
+					<li class="sepra-list first"><a style="text-decoration:none;" href="ApplicationsListAction?pageIndex=0">申请资源</a></li>
+					<li class="sepra-list"><a style="text-decoration:none;" href="RevertListAction?pageIndex=0">回收资源</a></li>
+				</ul>
+			</li>
+		</ul>
+		
+		
+		<ul>
+			<li class="item"><b class="item3"></b><a style="text-decoration:none;" href="UserINfoManageAction?type=all&pageIndex=0">用户管理</a></li>
+		</ul>
+		
+		
+		<ul>
+			<li class="item"><b class="item4"></b><a style="text-decoration:none;" href="ExperimentManageAction?type=all&pageIndex=0">实验管理</a></li>
+		</ul>
+		
+		
+		<ul>
+			<li class="item"><b class="item5"></b><a style="text-decoration:none;" href="phyMachineTopologyAction">拓&nbsp;扑&nbsp;图&nbsp;</a></li>
+		</ul>
+	</div>
+	</div>
+	</div>-->
+	<div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">TestBed</a>
+          <div class="btn-group pull-right">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+              <i class="icon-user"></i> 胡志洋
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="#">设置</a></li>
+              <li class="divider"></li>
+              <li><a href="#">退出</a></li>
+            </ul>
+          </div>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><p class="navbar-text">管理系统</p></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3" style="margin-top:100px; font-size:18px;">
+          <div class="sidebar-nav">
+            <ul class="nav nav-pills nav-stacked">
+              <li><a href="PhysicalMachineListAction?pageIndex=0">物理机器查看</a></li>
+              <li><a href="VirtualRouterListAction?pageIndex=0">虚拟路由器查看</a></li>
+              <li class="active"><a href="ApplicationsListAction?pageIndex=0">资源申请管理</a></li>
+              <li><a href="RevertListAction?pageIndex=0">资源回收管理</a></li>
+              <li ><a href="UserINfoManageAction?type=all&pageIndex=0">用户管理</a></li>
+              <li><a href="ExperimentManageAction?type=all&pageIndex=0">试验管理</a></li>
+              <li><a href="phyMachineTopologyAction">拓扑图</a></li>
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+     <div class="span9">
+          <div class="page-header">
+			<h2>资源分配
+			<small>实验 <s:property value="expName"/></small></h2>
+	      </div>
+		 <!-- Creates a container for the graph -->
+		<div id="graphContainer"
+		style="; height:322px;width:48.6%;float:left;overflow:hidden;margin-top:0px;margin-left:8px;background-image:url('topology/editors/images/grid.gif');cursor:default;">
+		</div>
+		<div id="graphContainer1"
+		style="; height:322px;width:48.6%;float:right;overflow:hidden;margin-top:0px;margin-right:8px;background-image:url('topology/editors/images/grid.gif');cursor:default;">
+		</div>
+		<!-- Creates a container for the outline -->
+		
+		<div id="outlineContainer"
+			style="position:absolute;overflow:hidden;top:370px;right:500px;width:150px;height:100px;background:transparent;border-style:solid;border-color:black;">
+		</div>
+		
+		<div id="outlineContainer1"
+			style="position:absolute;overflow:hidden;top:370px;right:50px;width:150px;height:100px;background:transparent;border-style:solid;border-color:black;">
+		</div>
+			
+		<table class="table table-striped" style="margin-top:20px;">
+				<thead>
+					<tr>
+						<th>序号</th>
+						<th>路由器编号</th>
+						<th>路由器类型</th>
+						<th>分配物理机</th>
+					</tr>
+				</thead>
+				<tbody id="VRTable";  >
+					<s:iterator value="exp.HighCodeID">
+					<tr>
+						 <td width="10%" name="VRTable"></td>
+						 <td width="20%" name="Vid">虚拟路由器<s:property/></td>
+              			 <td width="30%" name="Type">高优先级</td>
+	      				 <td width="40%">
+				 			 <select name="pmCodeList" onclick="addVr();">   
+	  							<s:iterator value="pmIDs">
+  									<option>物理机器<s:property /></option> 
+  								</s:iterator>
+	  						 </select>
+	      				 </td>
+					</tr>
+					
+					</s:iterator>
+				</tbody>
+			</table>
+		<button class="btn btn-primary" onclick="commit_offer()">提交</button>
+        </div><!--/span-->
+	  </div> <!-- /row-fluid--> 
+      <hr/>
+
+      <footer>
+        <p>&copy; Company 2012</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+	<script src="assets/js/jquery.js"></script>
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+	
+		
+		
+	
+	
+		<!--<p>路由器<button onclick="allocate();">分配路由器</button></p>
+		
+		<select id="vrCodeList" onclick="setCode();" size="10" name="experiments" style="width:600px;">
+			<option>路由器&nbsp;&nbsp;类型</option>
+			<s:iterator value="exp.HighCodeID">
+				<option><s:property />        高优先级</option> 
+			</s:iterator>  
+			<s:iterator value="exp.LowCodeID">
+				<option><s:property />        低优先级</option> 
+			</s:iterator>  
+		</select>
+		
+		<p style="margin: 0 0 0 50px;">选择物理机
+		<select id="pmCodeList" onclick="addVr();">   
+  					<option>NULL</option>
+  					<s:iterator value="pmIDs">
+  					<option><s:property /></option> 
+  					</s:iterator>  
+  		</select>
+		</p>
+		-->
+	
+</div>
+<div id="footer"><div class="cleaner"></div><p><a href="http://www.ict.ac.cn/">中国科学院计算技术研究所</a>版权所有</p></div>
+	
+</body>
+</html>
